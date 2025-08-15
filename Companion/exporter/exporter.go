@@ -43,7 +43,8 @@ func NewPrometheusExporter(frmApiHosts []string) *PrometheusExporter {
 		portalCollector := NewPortalCollector("/getPortal")
 		hypertubeCollector := NewHypertubeCollector("/getHyperEntrance")
 		frackingCollector := NewFrackingCollector("/getFrackingActivator")
-		collectorRunners = append(collectorRunners, NewCollectorRunner(ctx, frmApiHost, productionCollector, powerCollector, buildingCollector, vehicleCollector, trainCollector, droneCollector, vehicleStationCollector, trainStationCollector, resourceSinkCollector, pumpCollector, extractorCollector, portalCollector, hypertubeCollector, frackingCollector))
+		uobjectCollector := NewUObjectCollector("/getUObjectCount")
+		collectorRunners = append(collectorRunners, NewCollectorRunner(ctx, frmApiHost, productionCollector, powerCollector, buildingCollector, vehicleCollector, trainCollector, droneCollector, vehicleStationCollector, trainStationCollector, resourceSinkCollector, pumpCollector, extractorCollector, portalCollector, hypertubeCollector, frackingCollector, uobjectCollector))
 	}
 
 	return &PrometheusExporter{
