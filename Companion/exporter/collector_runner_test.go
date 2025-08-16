@@ -61,7 +61,8 @@ var _ = Describe("CollectorRunner", func() {
 		})
 
 		It("sanitizes session name", func() {
-			Expect(exporter.SanitizeSessionName(`it's giving -- 123456!@#$%^&*() yo hollar "'"`)).To(Equal(`its giving  123456 yo hollar `))
+			// Legacy name test - Prometheus 3.0 allows all utf-8 characters inside label names/values
+			Expect(exporter.SanitizeSessionName(`it's giving -- 123456!@#$%^&*() yo hollar "'"`)).To(Equal(`it's giving -- 123456!@#$%^&*() yo hollar "'"`))
 		})
 	})
 })

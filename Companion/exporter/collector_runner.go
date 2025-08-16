@@ -3,15 +3,15 @@ package exporter
 import (
 	"context"
 	"log"
-	"regexp"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 func SanitizeSessionName(sessionName string) string {
-	re := regexp.MustCompile(`[^\w\s]`)
-	return re.ReplaceAllString(sessionName, "")
+	// Technically this function should remove all non-utf8 characters, but previous versions of
+	// this function already assumed a utf-8 string.
+	return sessionName
 }
 
 type CollectorRunner struct {
