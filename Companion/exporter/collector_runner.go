@@ -20,6 +20,7 @@ type CollectorRunner struct {
 	cancel      context.CancelFunc
 	frmBaseUrl  string
 	sessionName string
+	pollInterval time.Duration
 }
 
 type Collector interface {
@@ -31,7 +32,7 @@ type SessionInfo struct {
 	SessionName string `json:"SessionName"`
 }
 
-func NewCollectorRunner(ctx context.Context, frmBaseUrl string, collectors ...Collector) *CollectorRunner {
+func NewCollectorRunner(ctx context.Context, frmBaseUrl string, pollInterval time.Duration, collectors ...Collector) *CollectorRunner {
 	ctx, cancel := context.WithCancel(ctx)
 	return &CollectorRunner{
 		ctx:         ctx,
@@ -39,6 +40,7 @@ func NewCollectorRunner(ctx context.Context, frmBaseUrl string, collectors ...Co
 		collectors:  collectors,
 		frmBaseUrl:  frmBaseUrl,
 		sessionName: "default",
+	pollInterval: pollInterval,
 	}
 }
 
@@ -65,7 +67,11 @@ func (c *CollectorRunner) updateSessionName() {
 func (c *CollectorRunner) Start() error {
 	c.updateSessionName()
 	c.Collect(c.frmBaseUrl, c.sessionName)
-	t := Clock.TickerFunc(c.ctx, 5*time.Second, func() error {
+	interval := c.pollInterval
+	if interval <= 0 {
+		interval = 5 * time.Second
+	}
+	t := Clock.TickerFunc(c.ctx, interval, func() error {
 		c.updateSessionName()
 		c.Collect(c.frmBaseUrl, c.sessionName)
 		return nil

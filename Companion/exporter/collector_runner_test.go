@@ -47,7 +47,7 @@ var _ = Describe("CollectorRunner", func() {
 
 			c1 := NewTestCollector()
 			c2 := NewTestCollector()
-			runner := exporter.NewCollectorRunner(ctx, url, c1, c2)
+			runner := exporter.NewCollectorRunner(ctx, url, 5*time.Second, c1, c2)
 			go runner.Start()
 			call := trap.MustWait(timeout)
 			call.Release()

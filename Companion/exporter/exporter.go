@@ -15,7 +15,7 @@ type PrometheusExporter struct {
 	collectorRunners []*CollectorRunner
 }
 
-func NewPrometheusExporter(frmApiHosts []string) *PrometheusExporter {
+func NewPrometheusExporter(frmApiHosts []string, pollInterval time.Duration) *PrometheusExporter {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 
@@ -44,7 +44,7 @@ func NewPrometheusExporter(frmApiHosts []string) *PrometheusExporter {
 		hypertubeCollector := NewHypertubeCollector("/getHyperEntrance")
 		frackingCollector := NewFrackingCollector("/getFrackingActivator")
 		uobjectCollector := NewUObjectCollector("/getUObjectCount")
-		collectorRunners = append(collectorRunners, NewCollectorRunner(ctx, frmApiHost, productionCollector, powerCollector, buildingCollector, vehicleCollector, trainCollector, droneCollector, vehicleStationCollector, trainStationCollector, resourceSinkCollector, pumpCollector, extractorCollector, portalCollector, hypertubeCollector, frackingCollector, uobjectCollector))
+		collectorRunners = append(collectorRunners, NewCollectorRunner(ctx, frmApiHost, pollInterval, productionCollector, powerCollector, buildingCollector, vehicleCollector, trainCollector, droneCollector, vehicleStationCollector, trainStationCollector, resourceSinkCollector, pumpCollector, extractorCollector, portalCollector, hypertubeCollector, frackingCollector, uobjectCollector))
 	}
 
 	return &PrometheusExporter{

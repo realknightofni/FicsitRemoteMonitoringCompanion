@@ -12,6 +12,7 @@ import (
 	"strings"
 	"syscall"
 	"text/template"
+	"time"
 
 	"github.com/AP-Hunt/FicsitRemoteMonitoringCompanion/Companion/exporter"
 	"github.com/AP-Hunt/FicsitRemoteMonitoringCompanion/Companion/prometheus"
@@ -42,12 +43,25 @@ func main() {
 	flag.BoolVar(&genReadme, "GenerateReadme", false, "Generate readme and exit")
 	var noProm bool
 	flag.BoolVar(&noProm, "noprom", false, "Do not run prometheus with the app.")
+	var pollIntervalStr string
+	flag.StringVar(&pollIntervalStr, "poll-interval", "5s", "Polling interval for FRM collectors (e.g. '5s', '1m').")
 	flag.Parse()
 
 	frmHostname = lookupEnvWithDefault("FRM_HOST", frmHostname)
 	frmPort = lookupEnvWithDefault("FRM_PORT", frmPort)
 	frmHostnames = lookupEnvWithDefault("FRM_HOSTS", frmHostnames)
 	logStdout, _ := strconv.ParseBool(lookupEnvWithDefault("FRM_LOG_STDOUT", "0"))
+	pollIntervalStr = lookupEnvWithDefault("FRM_POLL_INTERVAL", pollIntervalStr)
+
+	// Parse poll interval (supports Go duration, falls back to seconds integer)
+	var pollInterval time.Duration
+	if d, err := time.ParseDuration(pollIntervalStr); err == nil {
+		pollInterval = d
+	} else if secs, err2 := strconv.Atoi(pollIntervalStr); err2 == nil {
+		pollInterval = time.Duration(secs) * time.Second
+	} else {
+		pollInterval = 5 * time.Second
+	}
 
 	if genReadme {
 		generateReadme()
@@ -76,7 +90,7 @@ func main() {
 		}
 	}
 	var promExporter *exporter.PrometheusExporter
-	promExporter = exporter.NewPrometheusExporter(frmUrls)
+	promExporter = exporter.NewPrometheusExporter(frmUrls, pollInterval)
 
 	var prom *prometheus.PrometheusWrapper
 	var err error
